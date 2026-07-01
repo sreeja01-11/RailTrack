@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailTrack - Booking</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">RailTrack</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="pnr.html">PNR Status</a>
+            <a href="mybookings.html">My Bookings</a>
+            <a href="admin.html">Admin</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </header>
+    
+    <div class="container mt-5">
+        <div class="card">
+            <h2 id="trainTitle">Book Ticket</h2>
+            <form id="bookingForm" class="mt-3">
+                <div id="passengerContainer">
+                    <div class="passenger-entry" style="border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px; border-radius: 4px; background: var(--white);">
+                        <h4>Passenger 1</h4>
+                        <div class="form-group mt-3">
+                            <label>Passenger Name</label>
+                            <input type="text" class="pName" required>
+                        </div>
+                        <div style="display: flex; gap: 20px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Age</label>
+                                <input type="number" class="pAge" min="1" max="120" required>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Gender</label>
+                                <select class="pGender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Berth Preference</label>
+                                <select class="pPreference">
+                                    <option value="No Preference">No Preference</option>
+                                    <option value="Lower">Lower</option>
+                                    <option value="Middle">Middle</option>
+                                    <option value="Upper">Upper</option>
+                                    <option value="Side Lower">Side Lower</option>
+                                    <option value="Side Upper">Side Upper</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-secondary" onclick="addPassengerField()" style="background: var(--primary-color); color: white; margin-bottom: 20px;">+ Add Another Passenger</button>
+                
+                <div class="form-group">
+                    <h4>Fare Summary: ₹<span id="fareAmount">0</span></h4>
+                </div>
+                <button type="submit" class="btn btn-primary">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/seatAllocator.js"></script>
+    <script src="js/booking.js"></script>
+    <script>
+        let passengerCount = 1;
+        function addPassengerField() {
+            passengerCount++;
+            const container = document.getElementById('passengerContainer');
+            const html = `
+                <div class="passenger-entry" style="border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px; border-radius: 4px; background: var(--white);">
+                    <h4>Passenger ${passengerCount}</h4>
+                    <div class="form-group mt-3">
+                        <label>Passenger Name</label>
+                        <input type="text" class="pName" required>
+                    </div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Age</label>
+                            <input type="number" class="pAge" min="1" max="120" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Gender</label>
+                            <select class="pGender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Berth Preference</label>
+                            <select class="pPreference">
+                                <option value="No Preference">No Preference</option>
+                                <option value="Lower">Lower</option>
+                                <option value="Middle">Middle</option>
+                                <option value="Upper">Upper</option>
+                                <option value="Side Lower">Side Lower</option>
+                                <option value="Side Upper">Side Upper</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            updateFare();
+        }
+
+        function updateFare() {
+            const fareElement = document.getElementById("fareAmount");
+            const trainData = JSON.parse(localStorage.getItem("selectedTrain"));
+            if(trainData) {
+                const trains = Storage.getTrains();
+                const train = trains.find(t => t.number === trainData.trainNo);
+                fareElement.textContent = train.fare * passengerCount;
+            }
+        }
+    </script>
+</body>
+</html>

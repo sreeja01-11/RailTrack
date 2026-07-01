@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailTrack - E-Ticket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .ticket-card {
+            border: 2px solid var(--primary-color);
+            padding: 20px;
+            margin-top: 20px;
+            background: url('images/irctc-bg.png') center/cover no-repeat;
+            background-color: #fff;
+        }
+        @media print {
+            .navbar, .btn { display: none !important; }
+            body { background-color: #fff; }
+            .ticket-card { border: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">RailTrack</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="pnr.html">PNR Status</a>
+            <a href="mybookings.html">My Bookings</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </header>
+    
+    <div class="container mt-5">
+        <button class="btn btn-primary" onclick="window.print()">Print Ticket</button>
+        <div class="card ticket-card" id="ticketContent">
+            <!-- Populated via JS -->
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const pnr = localStorage.getItem("viewPnr");
+            if(!pnr) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            const passengers = Storage.getPassengers();
+            const tickets = passengers.filter(p => p.pnr === pnr);
+
+            if(tickets.length === 0) {
+                document.getElementById("ticketContent").innerHTML = "<h3>Ticket not found!</h3>";
+                return;
+            }
+
+            const primary = tickets[0];
+            let totalFare = tickets.reduce((sum, t) => sum + parseInt(t.fare), 0);
+
+            let passengerRows = tickets.map(t => `
+                <tr>
+                    <td>${t.name}</td>
+                    <td>${t.age}</td>
+                    <td>${t.gender}</td>
+                    <td>${t.coach}</td>
+                    <td>${t.seat}</td>
+                    <td><span style="color: ${t.status==='Confirmed' ? 'green' : (t.status==='Cancelled' ? 'red' : 'orange')}">${t.status}</span></td>
+                </tr>
+            `).join('');
+
+            document.getElementById("ticketContent").innerHTML = `
+                <h2 style="text-align:center; color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom:10px;">Electronic Reservation Slip (ERS)</h2>
+                <div style="display:flex; justify-content: space-between; margin-top:20px;">
+                    <div>
+                        <p><strong>PNR No:</strong> ${primary.pnr}</p>
+                        <p><strong>Train No & Name:</strong> ${primary.trainNo} - ${primary.trainName}</p>
+                        <p><strong>Date of Journey:</strong> ${primary.date}</p>
+                    </div>
+                    <div>
+                        <p><strong>From:</strong> ${primary.source}</p>
+                        <p><strong>To:</strong> ${primary.dest}</p>
+                        <p><strong>Total Passengers:</strong> ${tickets.length}</p>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top:20px;">Passenger Details</h3>
+                <table class="table" style="margin-top:10px;">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Coach</th>
+                            <th>Seat/Berth</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${passengerRows}
+                    </tbody>
+                </table>
+                <h3 style="margin-top:20px; text-align:right;">Total Fare: ₹${totalFare}</h3>
+            `;
+        });
+    </script>
+</body>
+</html>

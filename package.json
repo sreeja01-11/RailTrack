@@ -1,0 +1,11 @@
+{
+  "name": "railtrack",
+  "version": "1.0.0",
+  "description": "Railway Reservation System",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server . -p 8080 -c-1",
+    "start": "npx http-server . -p 8080 -c-1"
+  },
+  "dependencies": {}
+}
